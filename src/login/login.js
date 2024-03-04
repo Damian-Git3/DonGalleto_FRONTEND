@@ -1,3 +1,48 @@
+
+document.addEventListener('DOMContentLoaded', function () {
+    document.getElementById('btnLogin').addEventListener('click', e => {
+        e.preventDefault();
+        login();
+    });
+});
+
+async function login() {
+    try {
+        let usuario = document.getElementById("input_usuario").value;
+        let contrasena = document.getElementById("input_contrasena").value;
+
+        let respuesta = await validarUsuario(usuario, contrasena);
+
+        if (respuesta.success === true) {
+            alertaSuccess('Usuario registrado', 'Inicia sesión con tus credenciales')
+        } else{
+            alertaError('Error', respuesta.message)
+        }
+    } catch (error) {
+        alertaError('ERROR', error.message)
+    }
+}
+
+function alertaError(titulo, mensaje) {
+
+    Swal.fire({
+        title: titulo,
+        text: mensaje,
+        icon: 'error',
+        confirmButtonText: 'OK'
+    });
+}
+
+function alertaSuccess(titulo, mensaje) {
+
+    Swal.fire({
+        title: titulo,
+        text: mensaje,
+        icon: 'success',
+        confirmButtonText: 'OK'
+    });
+}
+
 export async function validarUsuario(user, password) {
     const ipAddress = "127.0.0.1:3000";
     
