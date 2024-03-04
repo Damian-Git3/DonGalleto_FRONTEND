@@ -2,11 +2,14 @@
 import { validarUsuario } from '../src/login/login.js'
 
 document.addEventListener('DOMContentLoaded', function () {
-    document.getElementById('btnIngresar').addEventListener('click', iniciarSesion);
+    document.getElementById('btnIngresar').addEventListener('click', e => {
+        e.preventDefault();
+        iniciarSesion();
+    });
 });
 
-function alertaError(titulo, mensaje){
-    
+function alertaError(titulo, mensaje) {
+
     Swal.fire({
         title: titulo,
         text: mensaje,
@@ -16,7 +19,7 @@ function alertaError(titulo, mensaje){
 }
 
 function alertaSuccess(titulo, mensaje) {
-    
+
     Swal.fire({
         title: titulo,
         text: mensaje,
@@ -31,13 +34,10 @@ async function iniciarSesion() {
         let contrasena = document.getElementById("input_contrasena").value;
 
         let respuesta = await validarUsuario(usuario, contrasena);
-        if (respuesta.success === true) {      
+        if (respuesta.success === true) {
             alertaSuccess('CORRECTO', 'BIENVENIDO')
         }
     } catch (error) {
         alertaError('ERROR', error.message)
-
     }
-    
-
 }
