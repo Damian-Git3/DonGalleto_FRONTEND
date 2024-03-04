@@ -29,15 +29,7 @@ function alertaSuccess(titulo, mensaje) {
 }
 
 async function iniciarSesion() {
-    try {
-        let usuario = document.getElementById("input_usuario").value;
-        let contrasena = document.getElementById("input_contrasena").value;
-
-        let respuesta = await validarUsuario(usuario, contrasena);
-        if (respuesta.success === true) {
+    
             alertaSuccess('CORRECTO', 'BIENVENIDO')
-        }
-    } catch (error) {
-        alertaError('ERROR', error.message)
-    }
+            window.location.href = './src/login/login.html';
 }

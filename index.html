@@ -1,84 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar Sesión</title>
-    <link rel="shortcut icon" href="images/candado.png" type="image/x-icon">
-    <link rel="stylesheet" href="styles/bootstrap-5.3.2-dist/css/bootstrap.min.css">
+    <title>Aplicación Super Segura</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            width: 80%;
+            height: 80%;
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .image-container {
+            width: 50%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        .image-container img {
+            height: 100%;
+
+            border-top-left-radius: 10px;
+            border-bottom-left-radius: 10px;
+        }
+        .content-container {
+            width: 50%;
+            padding: 20px;
+        }
+        .content-container h1,
+        .content-container p {
+            text-align: center;
+        }
+        .btn-iniciar-sesion {
+            background-color: #4CAF50;
+            color: white;
+            padding: 14px 20px;
+            margin-top: 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            width: 100%;
+            transition-duration: 0.4s;
+        }
+        .btn-iniciar-sesion:hover {
+            background-color: #45a049;
+        }
+        
+    </style>
     <link rel="stylesheet" href="libs/fontawesome-free-6.5.1-web/css/all.css">
-    <link rel="stylesheet" href="styles/global.css">
-    <link rel="stylesheet" href="styles/login.css">
-
 </head>
-
 <body>
-
-    <div class="d-flex justify-content-center align-items-center h-100">
-
-        <div class="card rounded-4 shadow-lg col-4">
-
-            <div class="card-header">
-                <h1 class="text-center"><kbd>Registrate!</kbd></h1>
-                <h1 class="text-center"><kbd>App Ultra Segura</kbd></h1>
-            </div>
-
-            <div class="card-body px-5 col-12">
-
-                <div class="row">
-                    <div class="col-1 d-flex align-items-center justify-content-center">
-                        <span><i class="fa-solid fa-lock fa-lg"></i></span>
-                    </div>
-                    <div class="col-11">
-                        <div class="form-floating mt-4 mb-4">
-                            <input type="text" class="form-control" id="input_usuario" placeholder="Ingresa tu Usuario"
-                                name="input_usuario">
-                            <label for="input_usuario">Usuario</label>
-                        </div>
-                    </div>
-                    
-
-                </div>
-
-                <div class="row">
-
-                    <div class="col-1 d-flex align-items-center justify-content-center">
-                    
-                        <i class="fa-solid fa-user fa-lg"></i>
-                    
-                    </div>
-
-                    <div class="col-11">
-                        <div class="form-floating mt-4 mb-4">
-                            <input type="text" class="form-control" id="input_contrasena"
-                                placeholder="Ingresa tu Contraseña" name="input_contrasena">
-                            <label for="input_contrasena">Contraseña</label>
-                        </div>
-                    </div>                    
-
-                </div>
-
-                <div class="row">
-                    <div class="d-flex justify-content-center mt-4 mb-4">
-                        <button id="btnIngresar" type="submit" class="btn btn-primary">Ingresar</button>
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="card-footer">
-                <p class="text-center">No tienes Cuenta? <a href="/register.html">Registrate</a></p>
-            </div>
-
+    <div class="container">
+        <div class="image-container">
+            <img src="https://imgs.search.brave.com/WN1-_KmiBJrTT9VomHy8cFSKP4Edo8ftXPQG0xpkLJE/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9kZWZp/bmljaW9uLmRlL3dw/LWNvbnRlbnQvdXBs/b2Fkcy8yMDA4LzA3/L3NlZ3VyaWRhZC0x/LmpwZw" alt="Imagen de seguridad">
         </div>
-
+        <div class="content-container">
+            <h1>Bienvenido a la Aplicación Super Segura</h1>
+            <p>¡Tu seguridad es nuestra prioridad!</p>
+            <p>Descubre cómo protegemos tus datos con nuestra aplicación.</p>
+            <button id="btnIngresar" class="btn-iniciar-sesion">Iniciar Sesión</button>
+        </div>
     </div>
-    
     <script src="styles/bootstrap-5.3.2-dist/js/bootstrap.min.js"></script>
     <script src="libs/fontawesome-free-6.5.1-web/js/all.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script type="module" src="./src/index.js"></script>
 </body>
-
 </html>

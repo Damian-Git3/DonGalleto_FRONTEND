@@ -1,4 +1,4 @@
-import { registrarUsuario } from '../src/login/login.js'
+
 
 document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('btnRegister').addEventListener('click', e => {
@@ -42,4 +42,28 @@ function alertaSuccess(titulo, mensaje) {
         icon: 'success',
         confirmButtonText: 'OK'
     });
+}
+
+
+export async function registrarUsuario(user, password) {
+    const ipAddress = "127.0.0.1:3000";
+    const url = `http://${ipAddress}/usuarios/register`;
+
+    try {
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json;charset=UTF-8",
+            },
+            body: JSON.stringify({
+                usuario: user,
+                contrasena: password,
+            }),
+        });
+
+        const responseData = await response.json();
+        return responseData;
+    } catch (error) {
+        throw new Error(`Error: ${error.message}`);
+    }
 }
