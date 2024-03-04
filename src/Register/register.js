@@ -47,7 +47,7 @@ function alertaSuccess(titulo, mensaje) {
 
 export async function registrarUsuario(user, password) {
     const ipAddress = "127.0.0.1:3000";
-    const url = `http://${ipAddress}/usuarios/register`;
+    const url = `http://${ipAddress}/usuarios/registro`;
 
     try {
         const response = await fetch(url, {
@@ -62,8 +62,10 @@ export async function registrarUsuario(user, password) {
         });
 
         const responseData = await response.json();
+        console.log(responseData)
         return responseData;
     } catch (error) {
+        console.log(error)
         throw new Error(`Error: ${error.message}`);
     }
 }
