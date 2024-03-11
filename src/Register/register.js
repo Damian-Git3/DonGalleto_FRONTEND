@@ -60,6 +60,7 @@ export async function registrarUsuario(user, password) {
             method: "POST",
             headers: {
                 "Content-Type": "application/json;charset=UTF-8",
+                "x-access-token": localStorage.getItem('token')
             },
             body: JSON.stringify({
                 usuario: user,
