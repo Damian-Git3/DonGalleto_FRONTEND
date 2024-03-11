@@ -27,9 +27,16 @@ async function registerUser() {
         let respuesta = await registrarUsuario(usuario, contrasena);
 
         if (respuesta.success === true) {
+            localStorage.setItem('token', respuesta.token);
+            localStorage.setItem('admin', respuesta.admin);
+            
+            localStorage.setItem('usuario', respuesta.nombre);
+            localStorage.setItem('id', respuesta.id);
             alertaSuccess('Usuario registrado', 'Inicia sesión con tus credenciales')
+
         } else {
-            alertaError('Error', respuesta.message)
+
+            window.location.href = "../Usuario/usuario.html";
         }
     } catch (error) {
         //alertaError('ERROR', error.message)
