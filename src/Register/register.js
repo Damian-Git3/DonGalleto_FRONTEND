@@ -1,10 +1,22 @@
-
-
 document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('btnRegister').addEventListener('click', e => {
         e.preventDefault();
         registerUser();
     });
+});
+
+async function getCSRFToken() {
+    const ipAddress = "127.0.0.1:3000";
+    const url = `http://${ipAddress}/csrf-token`;
+
+    const response = await fetch(url);
+
+    const data = await response.json();
+    return data.csrfToken;
+}
+
+getCSRFToken().then(csrfToken => {
+    localStorage.setItem('csrfToken', csrfToken);
 });
 
 async function registerUser() {
@@ -21,9 +33,10 @@ async function registerUser() {
             localStorage.setItem('usuario', respuesta.nombre);
             localStorage.setItem('id', respuesta.id);
             alertaSuccess('Usuario registrado', 'Inicia sesión con tus credenciales')
+
+        } else {
+
             window.location.href = "../Usuario/usuario.html";
-        } else{
-            alertaError('Error', respuesta.message)
         }
     } catch (error) {
         //alertaError('ERROR', error.message)
