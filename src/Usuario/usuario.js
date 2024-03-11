@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
   const admin = localStorage.getItem("admin");
-  console.log(admin);
+
   if (admin == 2) {
     document.getElementById(
       "jumbo-titulo"
@@ -8,6 +8,9 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById(
       "jumbo-mensaje"
     ).textContent = `Usted puede realizar acciones globales (por el momento eso solo le permite ver la lista de usuarios)`;
+
+    //llamar a la api para obtener la lista de usuarios
+    solicitarUsuarios();
   } else {
     document.getElementById(
       "jumbo-titulo"
@@ -54,47 +57,44 @@ $(document).ready(function () {
       "d-none"
     );
   });
-
-  $("#modificarForm form").on("submit", function (e) {
-    e.preventDefault(); // Prevenir el envío del formulario por defecto
-
-    // Obtener los valores de los campos
-    var usuario = $("#modificarNombre").val();
-    var contrasena = $("#modificarContrasena").val();
-    var confirmacionContrasena = $("#modificarContrasena2").val();
-
-    const ok = validarContrasena(contrasena,usuario, confirmacionContrasena)
-    if(!ok){
-      return
-    }
-
-    // Preparar los datos para la petición
-    var data = {
-      id: id,
-      contrasena: contrasena,
-    };
-
-    const ipAddress = "127.0.0.1:3000";
-
-    // Realizar la petición AJAX
-    $.ajax({
-      url: `http://${ipAddress}/usuarios/actualizar`, // Asegúrate de reemplazar esto con la URL correcta
-      type: "POST",
-      data: JSON.stringify(data),
-      contentType: "application/json",
-      success: function (response) {
-        // Manejar la respuesta exitosa
-        console.log(response);
-        alertaSuccess("Modificación exitosa");
-      },
-      error: function (error) {
-        // Manejar el error
-        console.error(error);
-        alertaError("Error al modificar");
-      },
-    });
-  });
 });
+
+function actualizarContrasena() {
+  Swal.fire({
+    title: "¿Está seguro que desea cambiar su contraseña?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Sí, cambiar",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      document.getElementById("modificarMensaje").value = "";
+
+      // Obtener los valores de los campos
+      var usuario = document.getElementById("modificarUsuario").value;
+      var contrasena = document.getElementById("modificarContrasena").value;
+      var confirmacionContrasena = document.getElementById(
+        "modificarConfirmacionContrasena"
+      ).value;
+
+      if (
+        validarRegistro(contrasena, usuario, confirmacionContrasena) === true &&
+        validarFormato(contrasena) === true &&
+        sanitizar(contrasena) === true &&
+        sanitizar(usuario) === true
+      ) {
+        // Preparar los datos para la petición
+        var data = {
+          id: localStorage.getItem("id"),
+          contrasena: contrasena,
+        };
+
+        peticion_actualizar(data);
+      }
+    }
+  });
+}
 
 function cerrar_sesion() {
   //borrar datos de sesion
@@ -104,34 +104,51 @@ function cerrar_sesion() {
   window.location.href = "../login/login.html";
 }
 
-function eliminar_usuario() {
-  //borrar datos de sesion
-  // Realizar la petición AJAX
+function peticion_eliminar() {
   const ipAddress = "127.0.0.1:3000";
 
   var data = {
     id: localStorage.getItem("id"),
   };
-  $.ajax({
-    url: `http://${ipAddress}/usuarios/eliminar`, // Asegúrate de reemplazar esto con la URL correcta
-    type: "POST",
-    data: JSON.stringify(data),
-    contentType: "application/json",
-    success: function (response) {
-      // Manejar la respuesta exitosa
+  fetch(`http://${ipAddress}/usuarios/eliminar`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-access-token": localStorage.getItem("token"),
+    },
+    body: JSON.stringify(data),
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Error al eliminar");
+      }
+      console.log(response);
+      return response.json();
+    })
+    .then((response) => {
       console.log(response);
       alertaSuccess("Eliminación exitosa");
-
-      localStorage.removeItem("token");
-      localStorage.removeItem("admin");
-      localStorage.removeItem("id");
-      window.location.href = "../login/login.html";
-    },
-    error: function (error) {
-      // Manejar el error
+      cerrar_sesion();
+    })
+    .catch((error) => {
       console.error(error);
       alertaError("Error al eliminar");
-    },
+    });
+}
+
+function eliminar_usuario() {
+  Swal.fire({
+    title: "¿Está seguro que desea eliminar su cuenta?",
+    text: "No podrá recuperar su cuenta una vez eliminada",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Sí, eliminar",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      peticion_eliminar();
+    }
   });
 }
 
@@ -153,42 +170,108 @@ function alertaSuccess(titulo, mensaje) {
   });
 }
 
-function validarContrasena(contrasena,usuario, confirmacionContrasena){
-  // Sanitizar la contraseña usando regex (por ejemplo, eliminar espacios en blanco)
-  var regex = /^\s+|\s+$/g;
-  contrasena = contrasena.replace(regex, "");
-  confirmacionContrasena = confirmacionContrasena.replace(regex, "");
+function validarRegistro(contrasena, usuario, confirmacionContrasena) {
+  // Verificar que la contraseña no sea igual al usuario y que ambas contraseñas concuerdan
+  if (contrasena === usuario) {
+    document.getElementById("modificarMensaje").value =
+      "La contraseña no puede ser igual al usuario.";
+    return false;
+  }
 
-  var regex = /[`"'();,[\]{}<>&]/g;
+  if (contrasena !== confirmacionContrasena) {
+    document.getElementById("modificarMensaje").value =
+      "Las contraseñas no coinciden.";
+    return false;
+  }
+}
 
-  //verificar formato de contraseña
+function validarFormato(input) {
   const requerimiento =
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
-
-  // Retorna true si la contraseña cumple con el formato, false en caso contrario
-  if (!requerimiento.test(contrasena)) {
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^*_+-=:.¿¡?]).{8,}$/;
+  if (!requerimiento.test(input)) {
     alertaError(
       "Formato incorrecto",
-      "La constraseña debe contener al menos 8 caracteres, una letra mayúscula, una letra minúscula, un número y un caracter especial autorizado."
+      "La constraseña debe contener al menos 8 caracteres, una letra mayúscula, una letra minúscula, un número y un caracter especial autorizado !@#$%^*_+-=:.¿¡?."
     );
     return false;
   }
+}
+function sanitizar(input) {
+  // Sanitizar la contraseña usando regex (por ejemplo, eliminar espacios en blanco)
+  var espacios = /^\s+|\s+$/g;
+  input = input.replace(espacios, "");
 
-  if (regex.test(entradaUsuario)) {
-    alertaError(
-      "Datos incorrectos",
-      "La entrada contiene caracteres no permitidos: ''`'&;,(){}<>[]"
-    );
-    return false;
-  } 
+  const excluidos = /[^&'`".;()\[\]{}<>|]/g;
 
-  // Verificar que la contraseña no sea igual al usuario y que ambas contraseñas concuerdan
-  if (contrasena === usuario || contrasena !== confirmacionContrasena) {
+  if (excluidos.test(input)) {
     alertaError(
-      "Contraseña no permitida",
-      "La contraseña no puede ser igual al usuario y debe coincidir con la confirmación."
+      "Caracteres no permitidos",
+      "La entrada contiene alguno de estos caracteres &'`.;()[]{}<>|''"
     );
     return false;
   }
-  return true
+}
+
+function peticion_actualizar(data) {
+  const ipAddress = "127.0.0.1:3000"; // Asegúrate de que esta es la dirección IP correcta
+
+  fetch(`http://${ipAddress}/usuarios/actualizar`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-access-token": localStorage.getItem("token"),
+    },
+    body: JSON.stringify(data),
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Error al modificar");
+      }
+      return response.json();
+    })
+    .then((response) => {
+      console.log(response);
+      alertaSuccess("Modificación exitosa");
+      cerrar_sesion();
+    })
+    .catch((error) => {
+      console.error(error);
+      alertaError("Error al modificar");
+    });
+}
+
+function solicitarUsuarios() {
+  const ipAddress = "127.0.0.1:3000";
+
+  fetch(`http://${ipAddress}/usuarios/lista`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-access-token": localStorage.getItem("token"),
+    },
+    body: JSON.stringify({}),
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Error al obtener los usuarios");
+      }
+      return response.json();
+    })
+    .then((response) => {
+      //generar el contenido de tbody de la tabla
+      let contenido = "";
+      response.data.forEach((usuario) => {
+        contenido += `<tr>
+        <td>${usuario.usuario}</td>
+        <td>${usuario.estatus==1?"Activo":"Eliminado"}</td>
+        <td>${usuario.rol ==1 ?"Usuario":"Administrador"}</td>
+      </tr>`;
+      }
+      );
+      document.getElementById("usuarios").innerHTML = contenido;
+    })
+    .catch((error) => {
+      console.error(error);
+      alertaError("Error al obtener los usuarios");
+    });
 }
