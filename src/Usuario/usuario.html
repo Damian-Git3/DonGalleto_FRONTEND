@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <link rel="stylesheet" href="../../styles/usuarios.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <a class="navbar-brand" href="#" id="bienvenidaVista"
+        ><kbd>Aplicación super segura</kbd></a
+      >
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#navbarNav"
+        aria-controls="navbarNav"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav" id="admin-options">
+          <li class="nav-item dropdown">
+            <a
+              class="nav-link dropdown-toggle"
+              href="#"
+              id="navbarDropdownMenuLink"
+              data-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="false"
+            >
+              Administrador
+            </a>
+            <div class="dropdown-menu  dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+              <a class="dropdown-item" href="#" id="usuariosVista">Ver usuarios</a>
+              <a class="dropdown-item disabled-link" href="#"><s>Destruir el mundo</s></a>
+              
+            </div>
+          </li>
+        </ul>
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item dropdown">
+            <a
+              class="nav-link dropdown-toggle"
+              href="#"
+              id="navbarDropdownMenuLink"
+              data-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="false"
+            >
+              Usuario
+            </a>
+            <div class="dropdown-menu  dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+              <a class="dropdown-item" href="#" id="modificar">Cambiar contraseña</a>
+              <a class="dropdown-item" href="#" id="eliminar">Eliminar cuenta</a>
+              <a class="dropdown-item" href="#" id="cerrarSesion"
+                >Cerrar Sesión</a
+              >
+            </div>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    <div class="container mt-5">
+      <div class="row">
+        <div class="col-md-8 offset-md-2">
+
+          <div id="bienvenida">
+            <div class="jumbotron jumbotron-fluid">
+              <div class="container">
+                <h1 class="display-4" id="jumbo-titulo">Bienvenido</h1>
+                <p class="lead" id="jumbo-mensaje">Usted puede realizar acciones sobre su propia cuenta.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- vista de todos los usuarios -->
+          <div id="verUsuarios" class="d-none">
+            <h2>Todos los usuarios</h2>
+            <button class="btn btn-success">Cargar</button>
+            <p></p>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">Usuario</th>
+                  <th scope="col">Estatus</th>
+                </tr>
+              </thead>
+              <tbody id="usuarios">
+                <!-- Aquí se insertarán los usuarios -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Formulario para Modificar -->
+          <div id="modificarForm" class="d-none">
+            <h2>Modificar</h2>
+            <form>
+              <div class="form-group">
+                <label for="modificarNombre">Usuario</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="modificarNombre"
+                  placeholder="Ingresa el nuevo nombre"
+                />
+                <label for="modificarContrasena">Contraseña</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="modificarContrasena"
+                  placeholder="Ingresa la nueva contraseña"
+                />
+                <label for="modificarContrasena2">Confirmar Contraseña</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="modificarContrasena2"
+                  placeholder="Confirma la  la nueva contraseña"
+                />
+              </div>
+              <button type="submit" class="btn btn-primary">Modificar</button>
+            </form>
+          </div>
+
+          <!-- Formulario para Eliminar -->
+          <div id="eliminarForm" class="d-none">
+            <h2>Eliminar</h2>
+            <form>
+              <div class="form-group">
+                <p>¿Estás seguro de que quieres eliminar el usuario?</p>
+              </div>
+              <button type="submit" class="btn btn-danger">Eliminar</button>
+            </form>
+          </div>
+
+          <!-- Formulario para Cerrar Sesión -->
+          <div id="cerrarSesionForm" class="d-none">
+            <h2>Cerrar Sesión</h2>
+            <p>¿Estás seguro de que quieres cerrar sesión?</p>
+            <button type="button" id="cerrar_sesion" onclick="cerrar_sesion()" class="btn btn-secondary">
+              Cerrar Sesión
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="./usuario.js"></script>
+  </body>
+</html>

@@ -1,0 +1,32 @@
+.jumbotron {
+    background-color: #28a748; /* Color de fondo más verde */
+    color: white; /* Color del texto */
+    padding: 20px; /* Espaciado interno */
+    text-align: center; /* Alineación del texto */
+    font-family: Arial, sans-serif; /* Fuente del texto */
+    font-size: 1.5em; /* Tamaño de la fuente */
+    border-radius: 5px; /* Bordes redondeados */
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2); /* Sombra */
+    margin: 20px auto; /* Centrado y margen */
+    max-width: 800px; /* Ancho máximo */
+ }
+
+ #jumbo-titulo {
+    font-size: 2em; /* Tamaño de la fuente del título */
+    margin-bottom: 10px; /* Espaciado debajo del título */
+ }
+
+ .lead {
+    font-size: 1.2em; /* Tamaño de la fuente del párrafo */
+    font-weight: bold; /* Peso de la fuente */
+ }
+
+ .container {
+    max-width: 100%; /* Ancho máximo del contenedor */
+ }
+
+ .disabled-link {
+    color: gray;
+    cursor: not-allowed;
+    pointer-events: none;
+   }
