@@ -262,9 +262,9 @@ function solicitarUsuarios() {
       let contenido = "";
       response.data.forEach((usuario) => {
         contenido += `<tr>
-        <td>${usuario.usuario}</td>
-        <td>${usuario.estatus==1?"Activo":"Eliminado"}</td>
-        <td>${usuario.rol ==1 ?"Usuario":"Administrador"}</td>
+        <td>${usuario.nom_usuario}</td>
+        <td>${usuario.estatus ==1?"Activo":"Eliminado"}</td>
+        <td>${usuario.rol_usuario ==1 ?"Usuario":"Administrador"}</td>
       </tr>`;
       }
       );
