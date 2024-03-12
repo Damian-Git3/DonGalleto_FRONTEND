@@ -59,9 +59,10 @@ $(document).ready(function () {
   });
 });
 
-function actualizarContrasena() {
+function actualizarUsuario() {
+  document.getElementById("modificarMensaje").textContent = "";
   Swal.fire({
-    title: "¿Está seguro que desea cambiar su contraseña?",
+    title: "¿Está seguro que desea cambiar sus datos?",
     icon: "warning",
     showCancelButton: true,
     confirmButtonColor: "#3085d6",
@@ -69,7 +70,7 @@ function actualizarContrasena() {
     confirmButtonText: "Sí, cambiar",
   }).then((result) => {
     if (result.isConfirmed) {
-      document.getElementById("modificarMensaje").value = "";
+      
 
       // Obtener los valores de los campos
       var usuario = document.getElementById("modificarUsuario").value;
@@ -78,15 +79,20 @@ function actualizarContrasena() {
         "modificarConfirmacionContrasena"
       ).value;
 
-      if (
-        validarRegistro(contrasena, usuario, confirmacionContrasena) === true &&
-        validarFormato(contrasena) === true &&
-        sanitizar(contrasena) === true &&
-        sanitizar(usuario) === true
-      ) {
+      const form1 = validarRegistro(
+        contrasena,
+        usuario,
+        confirmacionContrasena
+      );
+      const form2 = validarFormato(contrasena);
+      const form3 = sanitizar(contrasena);
+      const form4 = sanitizar(usuario);
+      if (form1 && form2 && form3 && form4) {
         // Preparar los datos para la petición
         var data = {
           id: localStorage.getItem("id"),
+          usuario: localStorage.getItem("usuario"),
+          nuevo_usuario: usuario,
           contrasena: contrasena,
         };
 
@@ -173,50 +179,46 @@ function alertaSuccess(titulo, mensaje) {
 function validarRegistro(contrasena, usuario, confirmacionContrasena) {
   // Verificar que la contraseña no sea igual al usuario y que ambas contraseñas concuerdan
   if (contrasena === usuario) {
-    document.getElementById("modificarMensaje").value =
-      "La contraseña no puede ser igual al usuario.";
+    document.getElementById("modificarMensaje").textContent ="La contraseña no puede ser igual al usuario.\n";
     return false;
   }
 
   if (contrasena !== confirmacionContrasena) {
-    document.getElementById("modificarMensaje").value =
-      "Las contraseñas no coinciden.";
+    document.getElementById("modificarMensaje").textContent +="Las contraseñas no coinciden.\n";
     return false;
   }
+  return true;
 }
 
 function validarFormato(input) {
   const requerimiento =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^*_+-=:.¿¡?]).{8,}$/;
   if (!requerimiento.test(input)) {
-    alertaError(
-      "Formato incorrecto",
-      "La constraseña debe contener al menos 8 caracteres, una letra mayúscula, una letra minúscula, un número y un caracter especial autorizado !@#$%^*_+-=:.¿¡?."
-    );
+    document.getElementById("modificarMensaje").textContent +="La constraseña debe contener al menos 8 caracteres, una letra mayúscula, una letra minúscula, un número y un caracter especial autorizado !@#$%^*_+-=:.¿¡?.\n"
+    
     return false;
   }
+  return true;
 }
 function sanitizar(input) {
   // Sanitizar la contraseña usando regex (por ejemplo, eliminar espacios en blanco)
   var espacios = /^\s+|\s+$/g;
   input = input.replace(espacios, "");
 
-  const excluidos = /[^&'`".;()\[\]{}<>|]/g;
+  const excluidos = /[^&'`";()\[\]{}<>|]/g;
 
-  if (excluidos.test(input)) {
-    alertaError(
-      "Caracteres no permitidos",
-      "La entrada contiene alguno de estos caracteres &'`.;()[]{}<>|''"
-    );
+  if (!excluidos.test(input)) {
+    document.getElementById("modificarMensaje").textContent += "La entrada contiene alguno de estos caracteres &'`.;()[]{}<>|''\n";
     return false;
   }
+  return true;
 }
 
 function peticion_actualizar(data) {
   const ipAddress = "127.0.0.1:3000"; // Asegúrate de que esta es la dirección IP correcta
 
-  fetch(`http://${ipAddress}/usuarios/actualizar`, {
-    method: "POST",
+  fetch(`http://${ipAddress}/usuarios/modificar`, {
+    method: "PUT",
     headers: {
       "Content-Type": "application/json",
       "x-access-token": localStorage.getItem("token"),
@@ -263,11 +265,10 @@ function solicitarUsuarios() {
       response.data.forEach((usuario) => {
         contenido += `<tr>
         <td>${usuario.usuario}</td>
-        <td>${usuario.estatus==1?"Activo":"Eliminado"}</td>
-        <td>${usuario.rol ==1 ?"Usuario":"Administrador"}</td>
+        <td>${usuario.estatus == 1 ? "Activo" : "Eliminado"}</td>
+        <td>${usuario.rol == 1 ? "Usuario" : "Administrador"}</td>
       </tr>`;
-      }
-      );
+      });
       document.getElementById("usuarios").innerHTML = contenido;
     })
     .catch((error) => {
