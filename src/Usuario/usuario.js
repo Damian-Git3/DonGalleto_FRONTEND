@@ -162,7 +162,8 @@ function peticion_eliminar() {
 function editarUsuario(idUsuario) {
   idUsuarioModificar = usuarios[idUsuario].id;
 
-  $("#inputUsuario").val(usuarios[idUsuario].usuario);
+  $('#inputIdUsuario').val(usuarios[idUsuario].id);
+  $("#inputUsuario").val(usuarios[idUsuario].nom_usuario);
   $("#selectRol").val(usuarios[idUsuario].rol);
 
   $("#editarUsuario").removeClass("d-none");
