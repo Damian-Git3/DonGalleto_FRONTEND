@@ -1,3 +1,5 @@
+let usuarios = [];
+
 document.addEventListener("DOMContentLoaded", function () {
   const admin = localStorage.getItem("admin");
 
@@ -33,31 +35,46 @@ $(document).ready(function () {
 
   $("#usuariosVista").click(function () {
     $("#verUsuarios").removeClass("d-none");
-    $("#eliminarForm, #cerrarSesionForm, #modificarForm,#bienvenida").addClass(
+    $("#eliminarForm, #cerrarSesionForm, #modificarForm,#bienvenida, #editarUsuario").addClass(
       "d-none"
     );
   });
   $("#modificar").click(function () {
     $("#modificarForm").removeClass("d-none");
-    $("#eliminarForm, #cerrarSesionForm, #verUsuarios, #bienvenida").addClass(
+    $("#eliminarForm, #cerrarSesionForm, #verUsuarios, #bienvenida, #editarUsuario, #editarUsuario").addClass(
       "d-none"
     );
   });
 
   $("#eliminar").click(function () {
     $("#eliminarForm").removeClass("d-none");
-    $("#modificarForm, #cerrarSesionForm, #verUsuarios, #bienvenida").addClass(
+    $("#modificarForm, #cerrarSesionForm, #verUsuarios, #bienvenida, #editarUsuario").addClass(
+      "d-none"
+    );
+  });
+
+  $("#editar-usuario").click(function () {
+    $("#eliminarForm").removeClass("d-none");
+    $("#modificarForm, #cerrarSesionForm, #verUsuarios, #bienvenida, #editarUsuario").addClass(
       "d-none"
     );
   });
 
   $("#cerrarSesion").click(function () {
     $("#cerrarSesionForm").removeClass("d-none");
-    $("#modificarForm, #eliminarForm, #verUsuarios, #bienvenida").addClass(
+    $("#modificarForm, #eliminarForm, #verUsuarios, #bienvenida, #editarUsuario").addClass(
       "d-none"
     );
   });
 });
+
+function regresarUsuarios() {
+  $("#verUsuarios").removeClass("d-none");
+
+  $("#editarUsuario").removeClass("d-flex");
+
+  $("#eliminarForm, #cerrarSesionForm, #modificarForm, #bienvenida, #editarUsuario").addClass("d-none");
+}
 
 function actualizarContrasena() {
   Swal.fire({
@@ -134,6 +151,18 @@ function peticion_eliminar() {
       console.error(error);
       alertaError("Error al eliminar");
     });
+}
+
+function editarUsuario(idUsuario) {
+  idUsuarioModificar = usuarios[idUsuario].id;
+
+  $("#inputUsuario").val(usuarios[idUsuario].usuario);
+  $("#selectRol").val(usuarios[idUsuario].rol);
+
+  $("#editarUsuario").removeClass("d-none");
+  $("#editarUsuario").addClass("d-flex flex-column");
+
+  $("#eliminarForm, #cerrarSesionForm, #modificarForm, #bienvenida, #verUsuarios, #editarUsuario").addClass("d-none");
 }
 
 function eliminar_usuario() {
@@ -240,6 +269,44 @@ function peticion_actualizar(data) {
     });
 }
 
+function mandarUsuarioEditado() {
+  const ipAddress = "127.0.0.1:3000";
+
+  // Definir la URL de la solicitud
+  const url = `http://${ipAddress}/Usuarios/editar`;
+
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", url, true);
+    xhr.responseType = "json";
+    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+    xhr.onload = function () {
+      console.log(xhr);
+      if (xhr.status === 200) {
+        const responseData = xhr.response;
+        resolve(responseData); // Resuelve la promesa con los datos de la respuesta
+      } else {
+        reject(xhr.response); // Rechaza la promesa con los datos de la respuesta
+      }
+    };
+
+    xhr.onerror = function () {
+      reject(new Error("Error de red")); // Rechaza la promesa en caso de error de red
+    };
+
+    const usuario = JSON.stringify({
+      usuario: $("#inputUsuario").val(),
+      contrasena: $("#inputContrasenia").val(),
+      rol: $("#selectRol").val(),
+      idUsuario: idUsuarioModificar,
+      idUsuarioModificador: localStorage.getItem("id")
+    });
+
+    xhr.send(usuario);
+  });
+}
+
 function solicitarUsuarios() {
   const ipAddress = "127.0.0.1:3000";
 
@@ -260,14 +327,27 @@ function solicitarUsuarios() {
     .then((response) => {
       //generar el contenido de tbody de la tabla
       let contenido = "";
-      response.data.forEach((usuario) => {
+
+      usuarios = response.data;
+
+      response.data.forEach((usuario, index) => {
         contenido += `<tr>
         <td>${usuario.usuario}</td>
-        <td>${usuario.estatus==1?"Activo":"Eliminado"}</td>
-        <td>${usuario.rol ==1 ?"Usuario":"Administrador"}</td>
-      </tr>`;
-      }
-      );
+        <td>${usuario.estatus == 1 ? "Activo" : "Eliminado"}</td>
+        <td>${usuario.rol == 1 ? "Usuario" : "Administrador"}</td>`;
+
+        const admin = localStorage.getItem("admin");
+
+        if (admin == 2) {
+          contenido += `<td>
+            <button onclick="editarUsuario(${index})" class="btn btn-warning">
+            Editar usuario
+            </button>
+            </td>
+            </tr>`;
+        }
+      });
+
       document.getElementById("usuarios").innerHTML = contenido;
     })
     .catch((error) => {
