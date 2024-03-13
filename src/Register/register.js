@@ -98,6 +98,7 @@ function validarFormato(input) {
   }
   return true;
 }
+
 function sanitizar(input) {
   // Sanitizar la contraseña usando regex (por ejemplo, eliminar espacios en blanco)
   let espacios = /^\s+|\s+$/g;
