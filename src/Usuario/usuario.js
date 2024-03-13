@@ -305,7 +305,7 @@ async function solicitarUsuarios() {
 
       response.data.forEach((usuario, index) => {
         contenido += `<tr>
-        <td>${usuario.usuario}</td>
+        <td>${usuario.nom_usuario}</td>
         <td>${usuario.estatus == 1 ? "Activo" : "Eliminado"}</td>
         <td>${usuario.rol_usuario == 1 ? "Usuario" : "Administrador"}</td>`;
 
