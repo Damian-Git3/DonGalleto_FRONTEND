@@ -13,12 +13,16 @@ async function registerUser() {
 
     document.getElementById("modificarMensaje").textContent = "";
 
-    const val2 = validarFormato(contrasena);
-    const val3 = sanitizar(usuario);
-    const val4 = sanitizar(contrasena);
-    const val1 = validarRegistro(contrasena, usuario, contrasena2);
-    if (val1 && val2 && val3 && val4) {
-      let respuesta = await registrarUsuario(usuario, contrasena);
+    
+    const val1 = validarFormatoUsuario(usuario);
+    const val2 = validarFormatoContrasena(contrasena);
+    const val3 = validarRegistro(contrasena, usuario, contrasena2);
+
+    if (val1 && val2 && val3) {
+      let respuesta = await registrarUsuario(
+        sanitizar(usuario),
+        sanitizar(contrasena)
+      );
 
       if (respuesta.success === true) {
         localStorage.setItem("token", respuesta.token);
@@ -59,7 +63,17 @@ function alertaSuccess(titulo, mensaje) {
 }
 
 function validarRegistro(contrasena, usuario, confirmacionContrasena) {
-  // Verificar que la contraseña no sea igual al usuario y que ambas contraseñas concuerdan
+  
+  if (
+    contrasena.length < 1 ||
+    usuario.length < 1 ||
+    confirmacionContrasena.length < 1
+  ) {
+    document.getElementById("modificarMensaje").textContent =
+      "No deje ningun campo vacio.\n";
+    return false;
+  }
+
   if (contrasena === usuario) {
     document.getElementById("modificarMensaje").textContent =
       "La contraseña no puede ser igual al usuario.\n";
@@ -74,29 +88,64 @@ function validarRegistro(contrasena, usuario, confirmacionContrasena) {
   return true;
 }
 
-function validarFormato(input) {
-  const requerimiento = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^*_+-=:.¿¡?])[A-Za-z\d!@#$%^*_+-=:.¿¡?]{8,}$/;
-  if (!requerimiento.test(input)) {
+function validarFormatoContrasena(input) {
+  const caracteresEspecialesRegex = /[!@#$%^&*_=+\-]/;
+  const contieneLetras = /[a-zA-Z]/.test(input);
+  const contieneNumeros = /\d/.test(input);
+  const caracteresPermitidos = /^[a-zA-Z0-9!@#$%^&*_\-+=]+$/;
+
+  if (!caracteresEspecialesRegex.test(input)) {
     document.getElementById("modificarMensaje").textContent +=
-      "La constraseña debe contener al menos 8 caracteres, una letra mayúscula, una letra minúscula, un número y un caracter especial autorizado !@#$%^*_+-=:.¿¡?.\n";
+      "La constraseña debe contener al menos un caracter especial autorizado '!', '@', '#', '$', '%', '^', '&', '*', '_', '-', '+', '='\n";
+    return false;
+  }
+
+  if (!contieneLetras) {
+    document.getElementById("modificarMensaje").textContent +=
+      "La constraseña debe contener mayúsculas y minúsculas.\n";
 
     return false;
   }
+  if (!contieneNumeros) {
+    document.getElementById("modificarMensaje").textContent +=
+      "La constraseña debe contener números.\n";
+
+    return false;
+  }
+
+  if (input.length < 8) {
+    document.getElementById("modificarMensaje").textContent +=
+      "La constraseña debe contener al menos 8 caracteres.\n";
+
+    return false;
+  }
+
+  if (!caracteresPermitidos.test(input)) {
+    document.getElementById("modificarMensaje").textContent +=
+      "La entrada no debe contener espacios o caracteres especiales que no sean \n'!', '@', '#', '$', '%', '^', '&', '*', '_', '-', '+', '='";
+    return false;
+  }
+
+  return true;
+}
+function validarFormatoUsuario(input) {
+  const caracteresPermitidos = /^[a-zA-Z0-9]+$/;
+
+  if (!caracteresPermitidos.test(input)) {
+    document.getElementById("modificarMensaje").textContent +=
+      "El usuario solo debe tener letras y números\n";
+    return false;
+  }
+
   return true;
 }
 function sanitizar(input) {
-  // Sanitizar la contraseña usando regex (por ejemplo, eliminar espacios en blanco)
-  var espacios = /^\s+|\s+$/g;
-  input = input.replace(espacios, "");
-
-  const excluidos = /[^&'`";()\[\]{}<>|]/g;
-
-  if (!excluidos.test(input)) {
-    document.getElementById("modificarMensaje").textContent +=
-      "La entrada contiene alguno de estos caracteres &'`.;()[]{}<>|''\n";
-    return false;
-  }
-  return true;
+  // Definir expresión regular para caracteres permitidos
+  const caracteresPermitidos = /[a-zA-Z0-9!@#$%^&*_\-+=]+/g;
+  // Filtrar la entrada para conservar solo los caracteres permitidos
+  const entradaSanitizada = input.match(caracteresPermitidos);
+  // Unir los caracteres filtrados para formar la nueva entrada sanitizada
+  return entradaSanitizada.join("");
 }
 
 export async function registrarUsuario(user, password) {
