@@ -19,7 +19,7 @@ async function login() {
             localStorage.setItem('admin', respuesta.admin);
             localStorage.setItem('usuario', respuesta.nombre);
             localStorage.setItem('id', respuesta.id);
-            alertaSuccess('Usuario registrado', 'Inicia sesión con tus credenciales')
+            alertaSuccess('CORRECTO', 'BIENVENIDO')
             window.location.href = "./../Usuario/usuario.html";
         } else{
             alertaError('Error', respuesta.message)

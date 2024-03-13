@@ -1,66 +1,28 @@
-document.addEventListener("DOMContentLoaded", function () {
-  const admin = localStorage.getItem("admin");
+let usuarios = [];
 
-  if (admin == 2) {
-    document.getElementById(
-      "jumbo-titulo"
-    ).innerHTML = `Bienvenido administrador ${localStorage.getItem("usuario")}`;
-    document.getElementById(
-      "jumbo-mensaje"
-    ).textContent = `Usted puede realizar acciones globales (por el momento eso solo le permite ver la lista de usuarios)`;
+function regresarUsuarios() {
+  // Seleccionar el elemento con id "verUsuarios" y remover la clase "d-none"
+  document.getElementById("verUsuarios").classList.remove("d-none");
 
-    //llamar a la api para obtener la lista de usuarios
-    solicitarUsuarios();
-  } else {
-    document.getElementById(
-      "jumbo-titulo"
-    ).innerHTML = `Bienvenido usuario ${localStorage.getItem("usuario")}`;
-    document.getElementById(
-      "jumbo-mensaje"
-    ).textContent = `Usted puede realizar acciones sobre su propia cuenta.`;
-    //borrar el elemento del dom
-    document.getElementById("admin-options").remove();
-  }
-});
+  // Seleccionar el elemento con id "formEditarUsuario" y remover la clase "d-flex"
+  document.getElementById("formEditarUsuario").classList.remove("d-flex");
 
-$(document).ready(function () {
-  $("#bienvenidaVista").click(function () {
-    $("#bienvenida").removeClass("d-none");
-    $(
-      "#eliminarForm, #cerrarSesionForm, #modificarForm, #verUsuarios"
-    ).addClass("d-none");
+  // Seleccionar los elementos con los ids especificados y añadir la clase "d-none"
+  const ids = [
+    "eliminarForm",
+    "cerrarSesionForm",
+    "modificarForm",
+    "bienvenida",
+    "formEditarUsuario",
+  ];
+  ids.forEach((id) => {
+    document.getElementById(id).classList.add("d-none");
   });
-
-  $("#usuariosVista").click(function () {
-    $("#verUsuarios").removeClass("d-none");
-    $("#eliminarForm, #cerrarSesionForm, #modificarForm,#bienvenida").addClass(
-      "d-none"
-    );
-  });
-  $("#modificar").click(function () {
-    $("#modificarForm").removeClass("d-none");
-    $("#eliminarForm, #cerrarSesionForm, #verUsuarios, #bienvenida").addClass(
-      "d-none"
-    );
-  });
-
-  $("#eliminar").click(function () {
-    $("#eliminarForm").removeClass("d-none");
-    $("#modificarForm, #cerrarSesionForm, #verUsuarios, #bienvenida").addClass(
-      "d-none"
-    );
-  });
-
-  $("#cerrarSesion").click(function () {
-    $("#cerrarSesionForm").removeClass("d-none");
-    $("#modificarForm, #eliminarForm, #verUsuarios, #bienvenida").addClass(
-      "d-none"
-    );
-  });
-});
+}
 
 function actualizarUsuario() {
   document.getElementById("modificarMensaje").textContent = "";
+
   Swal.fire({
     title: "¿Está seguro que desea cambiar sus datos?",
     icon: "warning",
@@ -70,26 +32,20 @@ function actualizarUsuario() {
     confirmButtonText: "Sí, cambiar",
   }).then((result) => {
     if (result.isConfirmed) {
-      
-
       // Obtener los valores de los campos
-      var usuario = document.getElementById("modificarUsuario").value;
-      var contrasena = document.getElementById("modificarContrasena").value;
-      var confirmacionContrasena = document.getElementById(
+      let usuario = document.getElementById("modificarUsuario").value;
+      let contrasena = document.getElementById("modificarContrasena").value;
+      let confirmacionContrasena = document.getElementById(
         "modificarConfirmacionContrasena"
       ).value;
 
-      const form1 = validarRegistro(
-        contrasena,
-        usuario,
-        confirmacionContrasena
-      );
-      const form2 = validarFormato(contrasena);
-      const form3 = sanitizar(contrasena);
-      const form4 = sanitizar(usuario);
-      if (form1 && form2 && form3 && form4) {
+      const val1 = validarFormatoUsuario(usuario);
+      const val2 = validarFormatoContrasena(contrasena);
+      const val3 = validarRegistro(contrasena, usuario, confirmacionContrasena);
+
+      if (val1 && val2 && val3) {
         // Preparar los datos para la petición
-        var data = {
+        let data = {
           id: localStorage.getItem("id"),
           usuario: localStorage.getItem("usuario"),
           nuevo_usuario: usuario,
@@ -104,16 +60,14 @@ function actualizarUsuario() {
 
 function cerrar_sesion() {
   //borrar datos de sesion
-  localStorage.removeItem("token");
-  localStorage.removeItem("admin");
-  localStorage.removeItem("id");
+  localStorage.clear();
   window.location.href = "../login/login.html";
 }
 
-function peticion_eliminar() {
+function peticionEliminar() {
   const ipAddress = "127.0.0.1:3000";
 
-  var data = {
+  let data = {
     id: localStorage.getItem("id"),
   };
   fetch(`http://${ipAddress}/usuarios/eliminar`, {
@@ -138,8 +92,35 @@ function peticion_eliminar() {
     })
     .catch((error) => {
       console.error(error);
-      alertaError("Error al eliminar");
+      alertaError("Error al eliminar", error.message);
     });
+}
+
+function formEditarUsuario(idUsuario) {
+  console.log("ID USUARIO RECIBIDO", idUsuario);
+  console.log("ARREGLO DE USUARIOS", usuarios);
+  console.log("USUARIO SELECCIONADO", usuarios[idUsuario]);
+  idUsuarioModificar = usuarios[idUsuario].id_usuario;
+
+  // Reemplaza jQuery con JavaScript nativo para establecer el valor de los elementos
+  document.getElementById('inputIdUsuario').value = usuarios[idUsuario].id_usuario;
+  document.getElementById('inputUsuario').value = usuarios[idUsuario].nom_usuario;
+  document.getElementById('selectRol').value = usuarios[idUsuario].rol;
+
+  // Reemplaza jQuery con JavaScript nativo para manipular las clases de los elementos
+  document.getElementById("formEditarUsuario").classList.remove("d-none");
+
+  // Reemplaza jQuery con JavaScript nativo para añadir la clase "d-none" a múltiples elementos
+  const ids = [
+    "eliminarForm",
+    "cerrarSesionForm",
+    "modificarForm",
+    "bienvenida",
+    "verUsuarios",
+  ];
+  ids.forEach((id) => {
+    document.getElementById(id).classList.add("d-none");
+  });
 }
 
 function eliminar_usuario() {
@@ -153,7 +134,7 @@ function eliminar_usuario() {
     confirmButtonText: "Sí, eliminar",
   }).then((result) => {
     if (result.isConfirmed) {
-      peticion_eliminar();
+      peticionEliminar();
     }
   });
 }
@@ -179,12 +160,14 @@ function alertaSuccess(titulo, mensaje) {
 function validarRegistro(contrasena, usuario, confirmacionContrasena) {
   // Verificar que la contraseña no sea igual al usuario y que ambas contraseñas concuerdan
   if (contrasena === usuario) {
-    document.getElementById("modificarMensaje").textContent ="La contraseña no puede ser igual al usuario.\n";
+    document.getElementById("modificarMensaje").textContent =
+      "La contraseña no puede ser igual al usuario.\n";
     return false;
   }
 
   if (contrasena !== confirmacionContrasena) {
-    document.getElementById("modificarMensaje").textContent +="Las contraseñas no coinciden.\n";
+    document.getElementById("modificarMensaje").textContent +=
+      "Las contraseñas no coinciden.\n";
     return false;
   }
   return true;
@@ -194,21 +177,24 @@ function validarFormato(input) {
   const requerimiento =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^*_+-=:.¿¡?]).{8,}$/;
   if (!requerimiento.test(input)) {
-    document.getElementById("modificarMensaje").textContent +="La constraseña debe contener al menos 8 caracteres, una letra mayúscula, una letra minúscula, un número y un caracter especial autorizado !@#$%^*_+-=:.¿¡?.\n"
-    
+    document.getElementById("modificarMensaje").textContent +=
+      "La constraseña debe contener al menos 8 caracteres, una letra mayúscula, una letra minúscula, un número y un caracter especial autorizado !@#$%^*_+-=:.¿¡?.\n";
+
     return false;
   }
   return true;
 }
+
 function sanitizar(input) {
   // Sanitizar la contraseña usando regex (por ejemplo, eliminar espacios en blanco)
-  var espacios = /^\s+|\s+$/g;
+  let espacios = /^\s+|\s+$/g;
   input = input.replace(espacios, "");
 
   const excluidos = /[^&'`";()\[\]{}<>|]/g;
 
   if (!excluidos.test(input)) {
-    document.getElementById("modificarMensaje").textContent += "La entrada contiene alguno de estos caracteres &'`.;()[]{}<>|''\n";
+    document.getElementById("modificarMensaje").textContent +=
+      "La entrada contiene alguno de estos caracteres &'`.;()[]{}<>|''\n";
     return false;
   }
   return true;
@@ -238,11 +224,63 @@ function peticion_actualizar(data) {
     })
     .catch((error) => {
       console.error(error);
-      alertaError("Error al modificar");
+      alertaError("Error al modificar", error.message);
     });
 }
 
-function solicitarUsuarios() {
+function mandarUsuarioEditado() {
+  document.getElementById("modificarMensaje").textContent = "";
+
+  let usuario = document.getElementById("inputUsuario").value;
+  let contrasena = document.getElementById("inputContrasenia").value;
+  let confirmacionContrasena =
+    document.getElementById("inputContrasenia2").value;
+
+  const val1 = validarFormatoUsuario(usuario);
+  const val2 = validarFormatoContrasena(contrasena);
+  const val3 = validarRegistro(contrasena, usuario, confirmacionContrasena);
+
+  if (val1 && val2 && val3) {
+    const ipAddress = "127.0.0.1:3000";
+
+    // Definir la URL de la solicitud
+    const url = `http://${ipAddress}/usuarios/editar`;
+
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", url, true);
+      xhr.responseType = "json";
+      xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+      xhr.setRequestHeader("x-access-token", localStorage.getItem("token"));
+
+      xhr.onload = function () {
+        console.log(xhr);
+        if (xhr.status === 200) {
+          const responseData = xhr.response;
+          resolve(responseData); // Resuelve la promesa con los datos de la respuesta
+        } else {
+          reject(xhr.response); // Rechaza la promesa con los datos de la respuesta
+        }
+      };
+
+      xhr.onerror = function () {
+        reject(new Error("Error de red")); // Rechaza la promesa en caso de error de red
+      };
+
+      const usuario = JSON.stringify({
+        usuario: $("#inputUsuario").val(),
+        contrasena: $("#inputContrasenia").val(),
+        rol: $("#selectRol").val(),
+        id_usuario: $("#inputIdUsuario").val(),
+        idUsuarioModificador: localStorage.getItem("id"),
+      });
+
+      xhr.send(usuario);
+    });
+  }
+}
+
+async function solicitarUsuarios() {
   const ipAddress = "127.0.0.1:3000";
 
   fetch(`http://${ipAddress}/usuarios/lista`, {
@@ -255,24 +293,218 @@ function solicitarUsuarios() {
   })
     .then((response) => {
       if (!response.ok) {
-        throw new Error("Error al obtener los usuarios");
+        throw new Error(response);
       }
       return response.json();
     })
     .then((response) => {
       //generar el contenido de tbody de la tabla
       let contenido = "";
-      response.data.forEach((usuario) => {
+
+      usuarios = response.data;
+
+      response.data.forEach((usuario, index) => {
         contenido += `<tr>
         <td>${usuario.usuario}</td>
         <td>${usuario.estatus == 1 ? "Activo" : "Eliminado"}</td>
-        <td>${usuario.rol == 1 ? "Usuario" : "Administrador"}</td>
-      </tr>`;
+        <td>${usuario.rol_usuario == 1 ? "Usuario" : "Administrador"}</td>`;
+
+        const admin = localStorage.getItem("admin");
+
+        if (admin == 2) {
+          contenido += `
+              <td>
+                <button onclick="formEditarUsuario(${index})" class="btn btn-warning">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                </button>
+              </td>
+            </tr>`;
+        }
       });
+
       document.getElementById("usuarios").innerHTML = contenido;
     })
     .catch((error) => {
       console.error(error);
       alertaError("Error al obtener los usuarios");
     });
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  document
+    .getElementById("bienvenidaVista")
+    .addEventListener("click", function () {
+      document.getElementById("bienvenida").classList.remove("d-none");
+      document
+        .querySelectorAll(
+          "#eliminarForm, #cerrarSesionForm, #modificarForm, #verUsuarios"
+        )
+        .forEach(function (element) {
+          element.classList.add("d-none");
+        });
+    });
+
+  document
+    .getElementById("usuariosVista")
+    .addEventListener("click", function () {
+      document.getElementById("verUsuarios").classList.remove("d-none");
+      document
+        .querySelectorAll(
+          "#eliminarForm, #cerrarSesionForm, #modificarForm, #bienvenida, #formEditarUsuario"
+        )
+        .forEach(function (element) {
+          element.classList.add("d-none");
+        });
+    });
+
+  document.getElementById("modificar").addEventListener("click", function () {
+    document.getElementById("modificarForm").classList.remove("d-none");
+    document
+      .querySelectorAll(
+        "#eliminarForm, #cerrarSesionForm, #verUsuarios, #bienvenida, #formEditarUsuario"
+      )
+      .forEach(function (element) {
+        element.classList.add("d-none");
+      });
+  });
+
+  document.getElementById("eliminar").addEventListener("click", function () {
+    document.getElementById("eliminarForm").classList.remove("d-none");
+    document
+      .querySelectorAll(
+        "#modificarForm, #cerrarSesionForm, #verUsuarios, #bienvenida, #formEditarUsuario"
+      )
+      .forEach(function (element) {
+        element.classList.add("d-none");
+      });
+  });
+
+  // document.getElementById('editar-usuario').addEventListener('click', function () {
+  //   document.getElementById('eliminarForm').classList.remove('d-none');
+  //   document.querySelectorAll('#modificarForm, #cerrarSesionForm, #verUsuarios, #bienvenida, #formEditarUsuario').forEach(function (element) {
+  //     element.classList.add('d-none');
+  //   });
+  // });
+
+  document
+    .getElementById("cerrarSesion")
+    .addEventListener("click", function () {
+      document.getElementById("cerrarSesionForm").classList.remove("d-none");
+      document
+        .querySelectorAll(
+          "#modificarForm, #eliminarForm, #verUsuarios, #bienvenida, #formEditarUsuario"
+        )
+        .forEach(function (element) {
+          element.classList.add("d-none");
+        });
+    });
+
+  const admin = localStorage.getItem("admin");
+
+  if (admin == 2) {
+    document.getElementById(
+      "jumbo-titulo"
+    ).innerHTML = `Bienvenido administrador ${localStorage.getItem("usuario")}`;
+    document.getElementById(
+      "jumbo-mensaje"
+    ).textContent = `Usted puede realizar acciones globales (por el momento eso solo le permite ver la lista de usuarios)`;
+
+    //llamar a la api para obtener la lista de usuarios
+    solicitarUsuarios();
+  } else {
+    document.getElementById(
+      "jumbo-titulo"
+    ).innerHTML = `Bienvenido usuario ${localStorage.getItem("usuario")}`;
+    document.getElementById(
+      "jumbo-mensaje"
+    ).textContent = `Usted puede realizar acciones sobre su propia cuenta.`;
+    //borrar el elemento del dom
+    document.getElementById("admin-options").remove();
+  }
+});
+
+function validarRegistro(contrasena, usuario, confirmacionContrasena) {
+  if (
+    contrasena.length < 1 ||
+    usuario.length < 1 ||
+    confirmacionContrasena.length < 1
+  ) {
+    document.getElementById("modificarMensaje").textContent =
+      "No deje ningun campo vacio.\n";
+    return false;
+  }
+
+  if (contrasena === usuario) {
+    document.getElementById("modificarMensaje").textContent =
+      "La contraseña no puede ser igual al usuario.\n";
+    return false;
+  }
+
+  if (contrasena !== confirmacionContrasena) {
+    document.getElementById("modificarMensaje").textContent +=
+      "Las contraseñas no coinciden.\n";
+    return false;
+  }
+  return true;
+}
+
+function validarFormatoContrasena(input) {
+  const caracteresEspecialesRegex = /[!@#$%^&*_=+\-]/;
+  const contieneLetrasMinusculas = /[a-z]/.test(input);
+  const contieneLetrasMayusculas = /[A-Z]/.test(input);
+  const contieneNumeros = /\d/.test(input);
+  const caracteresPermitidos = /^[a-zA-Z0-9!@#$%^&*_\-+=]+$/;
+
+  if (!caracteresEspecialesRegex.test(input)) {
+    document.getElementById("modificarMensaje").textContent +=
+      "La constraseña debe contener al menos un caracter especial autorizado '!', '@', '#', '$', '%', '^', '&', '*', '_', '-', '+', '='\n";
+    return false;
+  }
+
+  if (!contieneLetrasMinusculas || !contieneLetrasMayusculas) {
+    document.getElementById("modificarMensaje").textContent +=
+      "La constraseña debe contener mayúsculas y minúsculas.\n";
+
+    return false;
+  }
+  if (!contieneNumeros) {
+    document.getElementById("modificarMensaje").textContent +=
+      "La constraseña debe contener números.\n";
+
+    return false;
+  }
+
+  if (input.length < 8) {
+    document.getElementById("modificarMensaje").textContent +=
+      "La constraseña debe contener al menos 8 caracteres.\n";
+
+    return false;
+  }
+
+  if (!caracteresPermitidos.test(input)) {
+    document.getElementById("modificarMensaje").textContent +=
+      "La entrada no debe contener espacios o caracteres especiales que no sean \n'!', '@', '#', '$', '%', '^', '&', '*', '_', '-', '+', '='";
+    return false;
+  }
+
+  return true;
+}
+function validarFormatoUsuario(input) {
+  const caracteresPermitidos = /^[a-zA-Z0-9]+$/;
+
+  if (!caracteresPermitidos.test(input)) {
+    document.getElementById("modificarMensaje").textContent +=
+      "El usuario solo debe tener letras y números\n";
+    return false;
+  }
+
+  return true;
+}
+function sanitizar(input) {
+  // Definir expresión regular para caracteres permitidos
+  const caracteresPermitidos = /[a-zA-Z0-9!@#$%^&*_\-+=]+/g;
+  // Filtrar la entrada para conservar solo los caracteres permitidos
+  const entradaSanitizada = input.match(caracteresPermitidos);
+  // Unir los caracteres filtrados para formar la nueva entrada sanitizada
+  return entradaSanitizada.join("");
 }

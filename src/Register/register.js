@@ -5,6 +5,20 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
+async function getCSRFToken() {
+  const ipAddress = "127.0.0.1:3000";
+  const url = `http://${ipAddress}/csrf-token`;
+
+  const response = await fetch(url);
+
+  const data = await response.json();
+  return data.csrfToken;
+}
+
+getCSRFToken().then((csrfToken) => {
+  localStorage.setItem("csrfToken", csrfToken);
+});
+
 async function registerUser() {
   try {
     let usuario = document.getElementById("input_usuario").value;
@@ -13,7 +27,6 @@ async function registerUser() {
 
     document.getElementById("modificarMensaje").textContent = "";
 
-    
     const val1 = validarFormatoUsuario(usuario);
     const val2 = validarFormatoContrasena(contrasena);
     const val3 = validarRegistro(contrasena, usuario, contrasena2);
@@ -63,7 +76,6 @@ function alertaSuccess(titulo, mensaje) {
 }
 
 function validarRegistro(contrasena, usuario, confirmacionContrasena) {
-  
   if (
     contrasena.length < 1 ||
     usuario.length < 1 ||
@@ -90,7 +102,8 @@ function validarRegistro(contrasena, usuario, confirmacionContrasena) {
 
 function validarFormatoContrasena(input) {
   const caracteresEspecialesRegex = /[!@#$%^&*_=+\-]/;
-  const contieneLetras = /[a-zA-Z]/.test(input);
+  const contieneLetrasMinusculas = /[a-z]/.test(input);
+  const contieneLetrasMayusculas = /[A-Z]/.test(input);
   const contieneNumeros = /\d/.test(input);
   const caracteresPermitidos = /^[a-zA-Z0-9!@#$%^&*_\-+=]+$/;
 
@@ -99,8 +112,7 @@ function validarFormatoContrasena(input) {
       "La constraseña debe contener al menos un caracter especial autorizado '!', '@', '#', '$', '%', '^', '&', '*', '_', '-', '+', '='\n";
     return false;
   }
-
-  if (!contieneLetras) {
+  if (!contieneLetrasMinusculas || !contieneLetrasMayusculas) {
     document.getElementById("modificarMensaje").textContent +=
       "La constraseña debe contener mayúsculas y minúsculas.\n";
 
@@ -139,6 +151,7 @@ function validarFormatoUsuario(input) {
 
   return true;
 }
+
 function sanitizar(input) {
   // Definir expresión regular para caracteres permitidos
   const caracteresPermitidos = /[a-zA-Z0-9!@#$%^&*_\-+=]+/g;
