@@ -1,35 +1,45 @@
+import { validarUsuario } from "../src/login/login.js";
+import { alertaSuccess } from "../src/alertas/alertas.js";
+import { alertaToastSuccess } from "../src/alertas/alertas.js";
 
-import { validarUsuario } from '../src/login/login.js'
-
-document.addEventListener('DOMContentLoaded', function () {
-    document.getElementById('btnIngresar').addEventListener('click', e => {
-        e.preventDefault();
-        iniciarSesion();
-    });
+// Llama a la función al cargar la página
+document.addEventListener('DOMContentLoaded', async function () { 
+    cargarLogin();        
 });
 
-function alertaError(titulo, mensaje) {
+async function cargarInicio() {
+    try {
+        const navbar = await fetch('../src/navbar/navbar.html');
+        const navbarHTML = await navbar.text();
+        const usuarioModule = await fetch('../src/usuarios/usuario.html');
+        const usuarioHTML = await usuarioModule.text();
 
-    Swal.fire({
-        title: titulo,
-        text: mensaje,
-        icon: 'error',
-        confirmButtonText: 'OK'
-    });
-}
+        const mainContainer = document.getElementById('mainContainer');
 
-function alertaSuccess(titulo, mensaje) {
+        document.getElementById('loginContainer').remove();
+        // Inserta el contenido de navbarHTML justo antes del mainContainer
+        mainContainer.insertAdjacentHTML('afterbegin', navbarHTML);
+        mainContainer.insertAdjacentHTML('beforeend', usuarioHTML);
 
-    Swal.fire({
-        title: titulo,
-        text: mensaje,
-        icon: 'success',
-        confirmButtonText: 'OK'
-    });
-}
+        alertaToastSuccess("CORRECTO", "FUNCIONANDO");
 
-async function iniciarSesion() {
+    } catch (error) {
+        console.error('Error al cargar el contenido HTML:', error);
+    }
     
-            alertaSuccess('CORRECTO', 'BIENVENIDO')
-            window.location.href = './src/login/login.html';
+}
+
+async function cargarLogin() {
+    try {
+        const response = await fetch('../src/login/login.html');
+        const contenidoHTML = await response.text();
+
+        document.getElementById('mainContainer').innerHTML = contenidoHTML;
+        document.getElementById('btnLogin').onclick = cargarInicio;
+
+        alertaToastSuccess("CORRECTO", "FUNCIONANDO");
+
+    } catch (error) {
+        console.error('Error al cargar el contenido HTML:', error);
+    }
 }

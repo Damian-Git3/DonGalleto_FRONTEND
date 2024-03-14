@@ -1,11 +1,4 @@
 
-document.addEventListener('DOMContentLoaded', function () {
-    document.getElementById('btnLogin').addEventListener('click', e => {
-        e.preventDefault();
-        login();
-    });
-});
-
 async function login() {
     try {
         let usuario = document.getElementById("input_usuario").value;
