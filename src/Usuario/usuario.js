@@ -258,8 +258,25 @@ function mandarUsuarioEditado() {
         if (xhr.status === 200) {
           const responseData = xhr.response;
           resolve(responseData); // Resuelve la promesa con los datos de la respuesta
+          Swal.fire({
+            icon: 'success',
+            title: 'Usuario editado',
+            text: 'Los datos del usuario han sido actualizados correctamente.',
+          });
+
+          document.getElementById("inputContrasenia").value = "";
+          document.getElementById("inputContrasenia2").value = "";
+          
+          // Ocultar el formulario de edición de usuario
+          document.getElementById("btn_regresar_usuarios").click();
+          
         } else {
           reject(xhr.response); // Rechaza la promesa con los datos de la respuesta
+          Swal.fire({
+            icon: 'error',
+            title: 'Error al editar',
+            text: 'Hubo un problema al actualizar los datos del usuario.',
+          });
         }
       };
 
@@ -298,6 +315,8 @@ async function solicitarUsuarios() {
       return response.json();
     })
     .then((response) => {
+
+      alertaSuccess("Usuarios obtenidos exitosamente");
       //generar el contenido de tbody de la tabla
       let contenido = "";
 
